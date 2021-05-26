@@ -39,9 +39,8 @@ def ticker_balance(selected_ticker):
     return [result, position]
 
 def total_balance():
-    return get_dataframe().Especie.unique()
-    
+    return get_dataframe()[ticker].unique()
 
 def filter_by_year(year):
     file = get_dataframe()
-    return file.loc[file[date].dt.year == 2021].reset_index(drop=True)
+    return file.loc[file[date].dt.year == year].reset_index(drop=True)
