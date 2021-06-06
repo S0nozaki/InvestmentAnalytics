@@ -1,13 +1,19 @@
 import yaml
 import sqlite3 as sql
 import pandas as pd
+import locale
+
+locale.setlocale(locale.LC_ALL, '')
 
 with open("config.yml", "r") as file_descriptor:
     config = yaml.safe_load(file_descriptor)
     db = config["db"]
-    table = config["transaction_table"]
+    table = config["transaction_table"]["Name"]
     date = config["date"]
     columns_selected_for_db = config["columns_selected_for_db"]
+    quantity = config["quantity"]
+    price = config["price"]
+    value = config["value"]
     ticker = config["ticker"]
     currency = config["currency"]
     currencies = config["currencies"]
@@ -36,7 +42,12 @@ def create_dataframe():
         file_dataframe = open_file_connection(filepath)
         file_dataframe[currency] = currencies[file_currency]
         dataframe = dataframe.append(file_dataframe)
-    return sort_by_date(drop_empty_rows(dataframe[columns_selected_for_db], ticker))
+    dataframe = drop_empty_rows(dataframe[columns_selected_for_db], ticker)
+    dataframe[quantity] = dataframe[quantity].apply(
+        lambda x: int(locale.atof(x)))
+    dataframe[price] = dataframe[price].apply(lambda x: locale.atof(x))
+    dataframe[value] = dataframe[value].apply(lambda x: locale.atof(x))
+    return sort_by_date(dataframe)
 
 
 def create_transaction_table():
